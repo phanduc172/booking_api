@@ -3,7 +3,6 @@ const Staff = db.staffs;
 const Op = db.Sequelize.Op;
 
 module.exports = {
-    // Tạo nhân viên mới
     create: async (req, res) => {
         try {
             const { name, position, email, phone, shift, salary, hire_date, status } = req.body;
@@ -23,7 +22,6 @@ module.exports = {
         }
     },
 
-    // Lấy tất cả nhân viên
     getAll: async (req, res) => {
         try {
             const staffs = await Staff.findAll();
@@ -33,7 +31,6 @@ module.exports = {
         }
     },
 
-    // Lấy thông tin nhân viên theo ID
     findOne: async (req, res) => {
         try {
             const { id } = req.params;
@@ -47,7 +44,6 @@ module.exports = {
         }
     },
 
-    // Cập nhật thông tin nhân viên theo ID
     update: async (req, res) => {
         try {
             const { id } = req.params;
@@ -72,7 +68,6 @@ module.exports = {
         }
     },
 
-    // Xóa nhân viên theo ID
     delete: async (req, res) => {
         try {
             const { id } = req.params;

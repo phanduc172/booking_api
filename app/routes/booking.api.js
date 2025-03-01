@@ -1,22 +1,17 @@
 module.exports = app => {
-    const bookings = require("../controllers/booking.controller.js");
+    const booking = require("../controllers/booking.controller.js");
 
     var router = require("express").Router();
 
-    // Tạo booking mới
-    router.post("/", bookings.create);
+    router.post("/", booking.create);
 
-    // Lấy danh sách tất cả booking
-    router.get("/", bookings.getAll);
+    router.get("/", booking.getAll);
 
-    // Lấy thông tin booking theo ID
-    router.get("/:id", bookings.findOne);
+    router.get("/:id", booking.findOne);
 
-    // Cập nhật booking theo ID
-    router.put("/:id", bookings.update);
+    router.put("/:id", booking.update);
 
-    // Xóa booking theo ID
-    router.delete("/:id", bookings.delete);
+    router.delete("/:id", booking.delete);
 
-    app.use('/api/bookings', router);
+    app.use('/api/booking', router);
 };

@@ -24,9 +24,6 @@ module.exports = (sequelize, DataTypes) => {
         phone: {
             type: DataTypes.STRING,
             allowNull: false,
-            validate: {
-                is: /^[0-9]{10}$/, // Kiểm tra số điện thoại có 10 chữ số
-            },
         },
         shift: {
             type: DataTypes.STRING,
@@ -36,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.FLOAT,
             allowNull: false,
             validate: {
-                min: 0, // Lương không được âm
+                min: 0,
             },
         },
         hire_date: {

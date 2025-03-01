@@ -1,11 +1,10 @@
 const db = require("../models");
-const Booking = db.bookings;
-const Customer = db.customers;
+const Booking = db.booking;
+const Customer = db.customer;
 const Room = db.rooms;
 
 
 module.exports = {
-    // Lấy danh sách booking
     getAll: async (req, res) => {
         try {
             const bookings = await Booking.findAll();
@@ -15,7 +14,6 @@ module.exports = {
         }
     },
 
-    // Thêm booking mới
     create: async (req, res) => {
         const { booking_id, customer_id, room_id, check_in, check_out, total_nights, total_price, discount, status, payment_method, number_of_guests, notes } = req.body;
 
@@ -38,7 +36,6 @@ module.exports = {
         return res.status(201).json(newBooking);
     },
 
-    // Tìm booking theo ID
     findOne: async (req, res) => {
         const id = req.params.id;
         const booking = await Booking.findByPk(id, {
@@ -52,7 +49,6 @@ module.exports = {
         }
     },
 
-    // Cập nhật booking
     update: async (req, res) => {
         const id = req.params.id;
         const [updated] = await Booking.update(req.body, {
@@ -66,7 +62,6 @@ module.exports = {
         }
     },
 
-    // Xóa booking
     delete: async (req, res) => {
         const id = req.params.id;
         const deleted = await Booking.destroy({ where: { booking_id: id } });

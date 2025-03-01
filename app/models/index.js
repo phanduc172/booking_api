@@ -20,9 +20,9 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 
-db.customers = require("./customer.model.js")(sequelize, Sequelize);
+db.customer = require("./customer.model.js")(sequelize, Sequelize);
 db.rooms = require("./room.model.js")(sequelize, Sequelize);
 db.staffs = require("./staff.model.js")(sequelize, Sequelize);
-db.bookings = require("./booking.model.js")(sequelize, Sequelize);
+db.booking = require("./booking.model.js")(sequelize, Sequelize);
 
 module.exports = db;

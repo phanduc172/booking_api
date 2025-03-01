@@ -1,8 +1,27 @@
 module.exports = (sequelize, DataTypes) => {
     const Booking = sequelize.define('Booking', {
-        booking_id: {
+        id: {
             type: DataTypes.STRING,
             primaryKey: true,
+        },
+        room_id: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            references: {
+                model: 'room',
+                key: 'id',
+            },
+        },
+        customer_id: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            references: {
+                model: 'customer',
+                key: 'id',
+            },
+        },
+        amount_night: {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
         check_in: {
@@ -13,54 +32,37 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        total_nights: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
         total_price: {
             type: DataTypes.FLOAT,
             allowNull: false,
         },
-        discount: {
-            amount: {
-                type: DataTypes.FLOAT,
-                allowNull: true,
-            },
-            type: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
+        created_at: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW,
+        },
+        updated_at: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        updated_by: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         status: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        payment_method: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        number_of_guests: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        notes: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        created_at: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
-        updated_at: {
-            type: DataTypes.DATE,
-        }
-    },
-        {
-            tableName: "bookings",
-            timestamps: false,
-            underscored: true,
-        }
-    );
+    }, {
+        tableName: 'booking',
+        timestamps: false,
+        underscored: true,
+    });
+
+    Booking.associate = (models) => {
+        Booking.belongsTo(models.Room, { foreignKey: 'room_id' });
+        Booking.belongsTo(models.Customer, { foreignKey: 'customer_id' });
+    };
 
     return Booking;
 };

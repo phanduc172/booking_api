@@ -1,9 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
     const Customer = sequelize.define("Customer", {
-        customer_id: {
-            type: DataTypes.INTEGER,
+        id: {
+            type: DataTypes.STRING,
             primaryKey: true,
-            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,
@@ -13,41 +12,34 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        room_type: {
+        email: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        check_in: {
-            type: DataTypes.DATE,
+        country: {
+            type: DataTypes.STRING,
             allowNull: false,
         },
-        check_out: {
-            type: DataTypes.DATE,
+        passport: {
+            type: DataTypes.STRING,
             allowNull: false,
-        },
-        status: {
-            type: DataTypes.ENUM("Pending", "Confirmed", "Cancelled"),
-            allowNull: false,
-            defaultValue: "Pending",
         },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,
+            defaultValue: DataTypes.NOW,
         },
         updated_at: {
             type: DataTypes.DATE,
             allowNull: false,
+            defaultValue: DataTypes.NOW,
         }
-
     }, {
-        tableName: "customers",
-        timestamps: false, // Tự động tạo `createdAt` và `updatedAt`
-        underscored: true, // Dùng `snake_case` thay vì `camelCase` trong DB
+        tableName: "customer",
+        timestamps: false,
+        underscored: true,
     });
-
-    Customer.associate = (models) => {
-        Customer.hasMany(models.Booking, { foreignKey: 'customer_id' });
-    };
 
     return Customer;
 };
+

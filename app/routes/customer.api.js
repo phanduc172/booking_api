@@ -1,22 +1,17 @@
 module.exports = app => {
-    const customers = require("../controllers/customer.controller.js");
+    const customer = require("../controllers/customer.controller.js");
 
     var router = require("express").Router();
 
-    // Tạo khách hàng mới
-    router.post("/", customers.create);
+    router.post("/", customer.create);
 
-    // Lấy danh sách tất cả khách hàng
-    router.get("/", customers.getAll);
+    router.get("/", customer.getAll);
 
-    // Lấy thông tin khách hàng theo ID
-    router.get("/:id", customers.findOne);
+    router.get("/:id", customer.findOne);
 
-    // Cập nhật khách hàng theo ID
-    router.put("/:id", customers.update);
+    router.put("/:id", customer.update);
 
-    // Xóa khách hàng theo ID
-    router.delete("/:id", customers.delete);
+    router.delete("/:id", customer.delete);
 
-    app.use('/api/customers', router);
+    app.use('/api/customer', router);
 };
