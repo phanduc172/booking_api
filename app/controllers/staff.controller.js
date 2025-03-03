@@ -1,5 +1,5 @@
 const db = require("../models");
-const Staff = db.staffs;
+const Staff = db.staff;
 const Op = db.Sequelize.Op;
 
 module.exports = {
@@ -24,8 +24,8 @@ module.exports = {
 
     getAll: async (req, res) => {
         try {
-            const staffs = await Staff.findAll();
-            return res.json(staffs);
+            const staff = await Staff.findAll();
+            return res.json(staff);
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi lấy danh sách nhân viên", error });
         }

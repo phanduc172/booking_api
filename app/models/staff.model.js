@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
         }
     }, {
-        tableName: "staffs",
+        tableName: "staff",
         timestamps: false,
         underscored: true,
     });

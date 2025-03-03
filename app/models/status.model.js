@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: false,
         },
     }, {
-        tableName: "statuses",
+        tableName: "status",
         timestamps: false,
         underscored: false,
     });

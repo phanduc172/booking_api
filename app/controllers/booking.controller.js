@@ -1,7 +1,7 @@
 const db = require("../models");
 const Booking = db.booking;
 const Customer = db.customer;
-const Room = db.rooms;
+const Room = db.room;
 
 
 module.exports = {

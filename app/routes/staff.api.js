@@ -1,17 +1,17 @@
 module.exports = app => {
-    const staffs = require("../controllers/staff.controller.js");
+    const staff = require("../controllers/staff.controller.js");
 
     var router = require("express").Router();
 
-    router.post("/", staffs.create);
+    router.post("/", staff.create);
 
-    router.get("/", staffs.getAll);
+    router.get("/", staff.getAll);
 
-    router.get("/:id", staffs.findOne);
+    router.get("/:id", staff.findOne);
 
-    router.put("/:id", staffs.update);
+    router.put("/:id", staff.update);
 
-    router.delete("/:id", staffs.delete);
+    router.delete("/:id", staff.delete);
 
-    app.use('/api/staffs', router);
+    app.use('/api/staff', router);
 };

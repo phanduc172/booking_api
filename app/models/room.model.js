@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: DataTypes.NOW,
         }
     }, {
-        tableName: "rooms",
+        tableName: "room",
         timestamps: false,
         underscored: true,
     });

@@ -1,8 +1,23 @@
 const db = require("../models");
-const Room = db.rooms;
+const Room = db.room;
 const Op = db.Sequelize.Op;
 
 module.exports = {
+    getAll: async (req, res) => {
+        try {
+            const room = await Room.findAll();
+            return sendResponse(
+                res,
+                200,
+                room,
+                "Lấy danh sách phòng thành công"
+            );
+        } catch (error) {
+            return res
+                .status(500)
+                .json({ message: "Lỗi khi lấy danh sách phòng", error });
+        }
+    },
     create: async (req, res) => {
         try {
             const { room_number, room_type, price_per_night, capacity, availability, bed_type, room_size, amenities, image, description, floor, view, check_in_time, check_out_time, discount } = req.body;
@@ -28,16 +43,6 @@ module.exports = {
             return res.status(500).json({ message: "Lỗi khi tạo phòng", error });
         }
     },
-
-    getAll: async (req, res) => {
-        try {
-            const rooms = await Room.findAll();
-            return res.status(200).json(rooms);
-        } catch (error) {
-            return res.status(500).json({ message: "Lỗi khi lấy danh sách phòng", error });
-        }
-    },
-
     findOne: async (req, res) => {
         try {
             const { id } = req.params;

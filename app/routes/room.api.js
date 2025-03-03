@@ -1,17 +1,17 @@
 module.exports = app => {
-    const rooms = require("../controllers/room.controller.js");
+    const room = require("../controllers/room.controller.js");
 
     var router = require("express").Router();
 
-    router.post("/", rooms.create);
+    router.post("/", room.create);
 
-    router.get("/", rooms.getAll);
+    router.get("/", room.getAll);
 
-    router.get("/:id", rooms.findOne);
+    router.get("/:id", room.findOne);
 
-    router.put("/:id", rooms.update);
+    router.put("/:id", room.update);
 
-    router.delete("/:id", rooms.delete);
+    router.delete("/:id", room.delete);
 
-    app.use('/api/rooms', router);
+    app.use('/api/room', router);
 };
