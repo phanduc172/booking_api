@@ -1,18 +1,26 @@
 const db = require("../models");
+const { sendResponse } = require("../public/common");
 const Service = db.service;
 const Op = db.Sequelize.Op;
+const { v4: uuidv4 } = require("uuid");
+
 
 module.exports = {
     // Tạo dịch vụ mới
     create: async (req, res) => {
         try {
-            const { id, name, icon } = req.body;
+            const { name, icon } = req.body;
             const service = await Service.create({
-                id,
+                id: uuidv4(),
                 name,
                 icon
             });
-            return res.status(201).json({ message: "Dịch vụ đã được tạo thành công", service });
+            return sendResponse(
+                res,
+                201,
+                service,
+                "Dịch vụ đã được tạo thành công"
+            );
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi tạo dịch vụ", error });
         }
@@ -21,8 +29,24 @@ module.exports = {
     // Lấy danh sách tất cả dịch vụ
     getAll: async (req, res) => {
         try {
-            const service = await Service.findAll();
-            return res.status(200).json(service);
+            const { search } = req.query;
+
+            const whereClause = {};
+
+            if (search) {
+                whereClause[Op.or] = [
+                    { name: { [Op.like]: `%${search}%` } },
+                ];
+            }
+            const service = await Service.findAll({
+                where: search ? whereClause : {},
+            });
+            return sendResponse(
+                res,
+                200,
+                service,
+                "Lấy danh sách dịch vụ thành công"
+            );
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi lấy danh sách dịch vụ", error });
         }

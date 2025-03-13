@@ -1,5 +1,6 @@
 const db = require("../models");
 const RoomOfType = db.roomtype;
+const { sendResponse } = require("../public/common");
 
 module.exports = {
     // Tạo mới một loại phòng
@@ -21,7 +22,13 @@ module.exports = {
     getAll: async (req, res) => {
         try {
             const roomtype = await RoomOfType.findAll();
-            return res.status(200).json(roomtype);
+            return sendResponse(
+                res,
+                200,
+                roomtype,
+                "Lấy danh sách loại phòng thành công"
+            );
+
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi lấy danh sách loại phòng", error });
         }

@@ -21,8 +21,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         status: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
+            type: DataTypes.INTEGER,
         },
         type_of_room_id: {
             type: DataTypes.STRING,
@@ -45,8 +44,8 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Room.associate = (models) => {
-        Room.belongsTo(models.TypeOfRoom, { foreignKey: 'type_of_room_id' });
-        Room.hasMany(models.Booking, { foreignKey: 'id' });
+        Room.belongsTo(models.roomtype, { foreignKey: 'type_of_room_id', as: "roomType" });
+        Room.hasMany(models.booking, { foreignKey: 'room_id' });
     };
 
     return Room;

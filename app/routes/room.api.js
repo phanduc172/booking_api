@@ -9,7 +9,7 @@ module.exports = app => {
 
     router.get("/:id", room.findOne);
 
-    router.put("/:id", room.update);
+    router.put("/:id/update", room.update);
 
     router.delete("/:id", room.delete);
 

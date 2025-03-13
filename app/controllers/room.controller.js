@@ -1,15 +1,38 @@
 const db = require("../models");
 const Room = db.room;
+const RoomOfType = db.roomtype;
+const { sendResponse } = require("../public/common");
 const Op = db.Sequelize.Op;
+const { v4: uuidv4 } = require("uuid");
+
 
 module.exports = {
     getAll: async (req, res) => {
         try {
-            const room = await Room.findAll();
+            const { search } = req.query;
+
+            const whereClause = {};
+
+            if (search) {
+                whereClause[Op.or] = [
+                    { name: { [Op.like]: `%${search}%` } },
+                ];
+            }
+            const rooms = await Room.findAll({
+                include: [
+                    {
+                        model: RoomOfType,
+                        as: "roomType",
+                        attributes: ["id", "name"]
+                    }
+                ],
+                where: search ? whereClause : {},
+            });
+
             return sendResponse(
                 res,
                 200,
-                room,
+                rooms,
                 "Lấy danh sách phòng thành công"
             );
         } catch (error) {
@@ -20,25 +43,22 @@ module.exports = {
     },
     create: async (req, res) => {
         try {
-            const { room_number, room_type, price_per_night, capacity, availability, bed_type, room_size, amenities, image, description, floor, view, check_in_time, check_out_time, discount } = req.body;
-            const room = await Room.create({
-                room_number,
-                room_type,
+            const { name, price_per_night, amount_adult, amount_child, status, type_of_room_id } = req.body;
+
+            if (!name || !price_per_night || !amount_adult || !amount_child || !status || !type_of_room_id) {
+                return sendResponse(res, 400, null, "Vui lòng cung cấp đầy đủ thông tin phòng");
+            }
+
+            const newRoom = await Room.create({
+                id: uuidv4(),
+                name,
                 price_per_night,
-                capacity,
-                availability,
-                bed_type,
-                room_size,
-                amenities,
-                image,
-                description,
-                floor,
-                view,
-                check_in_time,
-                check_out_time,
-                discount
+                amount_adult,
+                amount_child,
+                status,
+                type_of_room_id
             });
-            return res.status(201).json({ message: "Phòng đã được tạo thành công", room });
+            return sendResponse(res, 201, newRoom, "Thêm phòng thành công");
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi tạo phòng", error });
         }
@@ -46,11 +66,24 @@ module.exports = {
     findOne: async (req, res) => {
         try {
             const { id } = req.params;
-            const room = await Room.findByPk(id);
+            const room = await Room.findByPk(id, {
+                include: [
+                    {
+                        model: RoomOfType,
+                        as: "roomType",
+                        attributes: ["id", "name"]
+                    }
+                ]
+            });
             if (!room) {
-                return res.status(404).json({ message: "Không tìm thấy phòng với ID này" });
+                return sendResponse(res, 404, "Không tìm thấy phòng với ID này");
             }
-            return res.status(200).json(room);
+            return sendResponse(
+                res,
+                200,
+                room,
+                "Lấy danh sách phòng thành công"
+            );
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi lấy thông tin phòng", error });
         }
@@ -59,29 +92,25 @@ module.exports = {
     update: async (req, res) => {
         try {
             const { id } = req.params;
-            const { room_number, room_type, price_per_night, capacity, availability, bed_type, room_size, amenities, image, description, floor, view, check_in_time, check_out_time, discount } = req.body;
+            const { name, price_per_night, amount_adult, amount_child, status, type_of_room_id } = req.body;
             const room = await Room.findByPk(id);
             if (!room) {
                 return res.status(404).json({ message: "Không tìm thấy phòng với ID này" });
             }
             await room.update({
-                room_number,
-                room_type,
+                name,
                 price_per_night,
-                capacity,
-                availability,
-                bed_type,
-                room_size,
-                amenities,
-                image,
-                description,
-                floor,
-                view,
-                check_in_time,
-                check_out_time,
-                discount
+                amount_adult,
+                amount_child,
+                status,
+                type_of_room_id
             });
-            return res.status(200).json({ message: "Phòng đã được cập nhật thành công", room });
+            return sendResponse(
+                res,
+                200,
+                room,
+                "Phòng đã được cập nhật thành công"
+            );
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi cập nhật phòng", error });
         }

@@ -1,9 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
     const Staff = sequelize.define("Staff", {
-        staff_id: {
-            type: DataTypes.INTEGER,
+        id: {
+            type: DataTypes.STRING,
             primaryKey: true,
-            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,
@@ -48,9 +47,12 @@ module.exports = (sequelize, DataTypes) => {
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,
+            defaultValue: DataTypes.NOW,
         },
         updated_at: {
             type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW,
         }
     }, {
         tableName: "staff",
@@ -59,8 +61,8 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Staff.associate = (models) => {
-        Staff.belongsTo(models.Customer, { foreignKey: "customer_id", as: "customer" });
-        Staff.belongsTo(models.Room, { foreignKey: "room_id", as: "room" });
+        Staff.belongsTo(models.Customer, { foreignKey: "id", as: "customer" });
+        Staff.belongsTo(models.Room, { foreignKey: "id", as: "room" });
     };
 
     return Staff;

@@ -9,7 +9,7 @@ module.exports = app => {
 
     router.get("/:id", staff.findOne);
 
-    router.put("/:id", staff.update);
+    router.put("/:id/update", staff.update);
 
     router.delete("/:id", staff.delete);
 

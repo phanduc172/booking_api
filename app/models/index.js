@@ -28,4 +28,9 @@ db.roomtype = require("./room_type.model.js")(sequelize, Sequelize);
 db.service = require("./service.model.js")(sequelize, Sequelize);
 db.status = require("./status.model.js")(sequelize, Sequelize);
 
+db.room.associate(db);
+db.roomtype.associate(db);
+db.booking.associate(db);
+
+
 module.exports = db;

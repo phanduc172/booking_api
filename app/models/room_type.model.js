@@ -19,5 +19,9 @@ module.exports = (sequelize, DataTypes) => {
         underscored: false, // Sử dụng `camelCase` cho tên cột
     });
 
+    RoomOfType.associate = (models) => {
+        RoomOfType.hasMany(models.room, { foreignKey: "type_of_room_id", as: "room" });
+    };
+
     return RoomOfType;
 };

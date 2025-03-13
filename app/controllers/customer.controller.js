@@ -7,7 +7,22 @@ const { v4: uuidv4 } = require("uuid");
 module.exports = {
     getAll: async (req, res) => {
         try {
-            const customers = await Customer.findAll();
+            const { search } = req.query;
+
+            const whereClause = {};
+
+            if (search) {
+                whereClause[Op.or] = [
+                    { name: { [Op.like]: `%${search}%` } },
+                    { email: { [Op.like]: `%${search}%` } },
+                    { phone: { [Op.like]: `%${search}%` } },
+                ];
+            }
+
+            const customers = await Customer.findAll({
+                where: search ? whereClause : {},
+            });
+
             return sendResponse(
                 res,
                 200,
@@ -59,7 +74,7 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi tìm khách hàng", error);
         }
     },
-    
+
     update: async (req, res) => {
         try {
             const { id } = req.params;

@@ -2,12 +2,35 @@ const db = require("../models");
 const Booking = db.booking;
 const Customer = db.customer;
 const Room = db.room;
-
+const RoomType = db.roomtype;
 
 module.exports = {
     getAll: async (req, res) => {
         try {
-            const bookings = await Booking.findAll();
+            const bookings = await Booking.findAll({
+                include: [
+                    {
+                        model: Room,
+                        as: "room",
+                        attributes: [
+                            "id", "name", "price_per_night", "amount_adult", "amount_child", "status",
+                            "type_of_room_id", "created_at", "updated_at"
+                        ],
+                        include: [ 
+                            {
+                                model: RoomType,
+                                as: "roomType",
+                                attributes: ["id", "name"]
+                            }
+                        ]
+                    },
+                    {
+                        model: Customer,
+                        as: "customer",
+                        attributes: ["id", "name", "phone", "email", "country", "passport", "created_at", "updated_at"]
+                    }
+                ],
+            });
             return res.json(bookings);
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi lấy danh sách đặt phòng", error });
