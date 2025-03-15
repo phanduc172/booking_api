@@ -5,23 +5,23 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true,
         },
-        tableId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        tableName: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
+        // table_id: {
+        //     type: DataTypes.INTEGER,
+        //     allowNull: false,
+        // },
+        // table_name: {
+        //     type: DataTypes.STRING,
+        //     allowNull: false,
+        // },
         status: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        statusName: {
+        status_name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        isDelete: {
+        is_delete: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false,
@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: false,
         underscored: false,
     });
+
+    Status.associate = (models) => {
+        Status.hasMany(models.room, { foreignKey: "status", as: "room" });
+        Status.hasMany(models.booking, { foreignKey: "status", as: "room" });
+    };
 
     return Status;
 };

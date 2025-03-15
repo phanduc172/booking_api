@@ -3,11 +3,27 @@ const Booking = db.booking;
 const Customer = db.customer;
 const Room = db.room;
 const RoomType = db.roomtype;
+const Status = db.status;
+const Op = db.Sequelize.Op;
+const { sendResponse } = require("../public/common");
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
+
     getAll: async (req, res) => {
         try {
+            const { search } = req.query;
+
+            const whereClause = {};
+
+            if (search) {
+                whereClause[Op.or] = [
+                    { '$customer.name$': { [Op.like]: `%${search}%` } }
+                ];
+            }
+
             const bookings = await Booking.findAll({
+                where: search ? whereClause : {},
                 include: [
                     {
                         model: Room,
@@ -16,7 +32,7 @@ module.exports = {
                             "id", "name", "price_per_night", "amount_adult", "amount_child", "status",
                             "type_of_room_id", "created_at", "updated_at"
                         ],
-                        include: [ 
+                        include: [
                             {
                                 model: RoomType,
                                 as: "roomType",
@@ -28,45 +44,82 @@ module.exports = {
                         model: Customer,
                         as: "customer",
                         attributes: ["id", "name", "phone", "email", "country", "passport", "created_at", "updated_at"]
+                    },
+                    {
+                        model: Status,
+                        as: "roomStatus",
+                        attributes: ["id", "status", "status_name"]
                     }
                 ],
             });
-            return res.json(bookings);
+            return sendResponse(
+                res,
+                200,
+                bookings,
+                "Lấy danh sách đặt phòng thành công"
+            );
         } catch (error) {
-            return res.status(500).json({ message: "Lỗi khi lấy danh sách đặt phòng", error });
+            return sendResponse(
+                res,
+                500,
+                error,
+                "Lỗi khi lấy danh sách đặt phòng"
+            );
         }
     },
 
     create: async (req, res) => {
-        const { booking_id, customer_id, room_id, check_in, check_out, total_nights, total_price, discount, status, payment_method, number_of_guests, notes } = req.body;
+        try {
+            const { room_id, customer_id, amount_night, check_in, check_out, discount } = req.body;
 
-        const newBooking = await Booking.create({
-            booking_id,
-            customer_id,
-            room_id,
-            check_in,
-            check_out,
-            total_nights,
-            total_price,
-            discount_amount: discount.amount,
-            discount_type: discount.type,
-            status,
-            payment_method,
-            number_of_guests,
-            notes,
-        });
+            const room = await Room.findByPk(room_id, {
+                attributes: ["price_per_night"]
+            });
+            if (!room) {
+                return res.status(404).json({ message: "Phòng không tồn tại" });
+            }
+            const total_price = (room.price_per_night * amount_night) - (room.price_per_night * amount_night * (discount / 100));
+            const waitConfirm = 2
+            const status = waitConfirm
+            const newBooking = await Booking.create({
+                id: uuidv4(),
+                room_id,
+                customer_id,
+                amount_night,
+                check_in,
+                check_out,
+                status,
+                total_price,
+                discount: 0
+            });
 
-        return res.status(201).json(newBooking);
+            return sendResponse(
+                res,
+                201,
+                newBooking,
+                "Đặt phòng thành công"
+            );
+        } catch (error) {
+            return res.status(500).json({ message: "Lỗi khi tạo booking", error });
+        }
     },
 
     findOne: async (req, res) => {
         const id = req.params.id;
         const booking = await Booking.findByPk(id, {
-            include: [{ model: Customer, as: "customer" }, { model: Room, as: "room" }]
+            include: [
+                { model: Customer, as: "customer" },
+                { model: Room, as: "room" },
+                {
+                    model: Status,
+                    as: "roomStatus",
+                    attributes: ["id", "status", "status_name"]
+                }
+            ],
         });
 
         if (booking) {
-            return res.json(booking);
+            return sendResponse(res, 200, booking, "Lấy thông tin đặt phòng thành công");
         } else {
             return res.status(404).json({ message: "Booking not found" });
         }

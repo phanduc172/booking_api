@@ -45,7 +45,7 @@ module.exports = {
             }
 
             const newCustomer = await Customer.create({
-                id: uuidv4(),
+                id: uuidv4(), // ID tự tạo bằng uuid
                 name,
                 phone,
                 email,
@@ -59,6 +59,7 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi tạo khách hàng", error);
         }
     },
+
 
     findOne: async (req, res) => {
         try {

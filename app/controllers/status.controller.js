@@ -1,4 +1,5 @@
 const db = require("../models");
+const { sendResponse } = require("../public/common");
 const Status = db.status; // Kiểm tra nếu cần đổi thành db.status
 const Op = db.Sequelize.Op;
 
@@ -6,8 +7,8 @@ module.exports = {
     // 🟢 Tạo mới trạng thái
     create: async (req, res) => {
         try {
-            const { tableId, tableName, status, statusName, isDelete } = req.body;
-            const newStatus = await Status.create({ tableId, tableName, status, statusName, isDelete });
+            const { status, status_name, is_delete } = req.body;
+            const newStatus = await Status.create({status, status_name, is_delete });
 
             return res.status(201).json({
                 message: "Trạng thái đã được tạo thành công",
@@ -22,7 +23,12 @@ module.exports = {
     getAll: async (req, res) => {
         try {
             const statuses = await Status.findAll();
-            return res.status(200).json(statuses);
+            return sendResponse (
+                res,
+                200,
+                statuses,
+                "Lấy danh sách khách hàng thành công"
+            );
         } catch (error) {
             return res.status(500).json({ message: "Lỗi khi lấy danh sách trạng thái", error });
         }

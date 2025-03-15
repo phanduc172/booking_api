@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.FLOAT,
             allowNull: false,
         },
+        discount: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: null,
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -50,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
         status: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
     }, {
@@ -62,6 +67,7 @@ module.exports = (sequelize, DataTypes) => {
     Booking.associate = (models) => {
         Booking.belongsTo(models.room, { foreignKey: 'room_id', as: 'room' });
         Booking.belongsTo(models.customer, { foreignKey: 'customer_id', as: "customer" });
+        Booking.belongsTo(models.status, { foreignKey: 'status', as: 'roomStatus' });
     };
 
     return Booking;

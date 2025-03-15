@@ -44,6 +44,7 @@ require("./routes/booking.api")(app);
 require("./routes/room_type.api")(app);
 require("./routes/service.api")(app);
 require("./routes/status.api")(app);
+require("./routes/facility.api")(app);
 
 
 // set port, listen for requests
