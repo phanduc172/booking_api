@@ -7,11 +7,15 @@ module.exports = app => {
 
     router.get("/", room.getAll);
 
+    router.get("/available", room.getAvailableRooms);
+
     router.get("/:id", room.findOne);
 
     router.put("/:id/update", room.update);
 
     router.delete("/:id", room.delete);
+
+    router.put("/:id/update-status", room.updateStatus);
 
     app.use('/api/room', router);
 };

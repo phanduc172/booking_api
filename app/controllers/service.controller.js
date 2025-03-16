@@ -4,7 +4,6 @@ const Service = db.service;
 const Op = db.Sequelize.Op;
 const { v4: uuidv4 } = require("uuid");
 
-
 module.exports = {
     // Tạo dịch vụ mới
     create: async (req, res) => {
@@ -15,14 +14,9 @@ module.exports = {
                 name,
                 icon
             });
-            return sendResponse(
-                res,
-                201,
-                service,
-                "Dịch vụ đã được tạo thành công"
-            );
+            return sendResponse(res, 201, service, "Dịch vụ đã được tạo thành công");
         } catch (error) {
-            return res.status(500).json({ message: "Lỗi khi tạo dịch vụ", error });
+            return sendResponse(res, 500, null, "Lỗi khi tạo dịch vụ", error);
         }
     },
 
@@ -41,14 +35,10 @@ module.exports = {
             const service = await Service.findAll({
                 where: search ? whereClause : {},
             });
-            return sendResponse(
-                res,
-                200,
-                service,
-                "Lấy danh sách dịch vụ thành công"
-            );
+
+            return sendResponse(res, 200, service, "Lấy danh sách dịch vụ thành công");
         } catch (error) {
-            return res.status(500).json({ message: "Lỗi khi lấy danh sách dịch vụ", error });
+            return sendResponse(res, 500, null, "Lỗi khi lấy danh sách dịch vụ", error);
         }
     },
 
@@ -58,11 +48,11 @@ module.exports = {
             const { id } = req.params;
             const service = await Service.findByPk(id);
             if (!service) {
-                return res.status(404).json({ message: "Không tìm thấy dịch vụ với ID này" });
+                return sendResponse(res, 404, null, "Không tìm thấy dịch vụ với ID này");
             }
-            return res.status(200).json(service);
+            return sendResponse(res, 200, service, "Lấy thông tin dịch vụ thành công");
         } catch (error) {
-            return res.status(500).json({ message: "Lỗi khi lấy thông tin dịch vụ", error });
+            return sendResponse(res, 500, null, "Lỗi khi lấy thông tin dịch vụ", error);
         }
     },
 
@@ -73,15 +63,13 @@ module.exports = {
             const { name, icon } = req.body;
             const service = await Service.findByPk(id);
             if (!service) {
-                return res.status(404).json({ message: "Không tìm thấy dịch vụ với ID này" });
+                return sendResponse(res, 404, null, "Không tìm thấy dịch vụ với ID này");
             }
-            await service.update({
-                name,
-                icon
-            });
-            return res.status(200).json({ message: "Dịch vụ đã được cập nhật thành công", service });
+            await service.update({ name, icon });
+
+            return sendResponse(res, 200, service, "Dịch vụ đã được cập nhật thành công");
         } catch (error) {
-            return res.status(500).json({ message: "Lỗi khi cập nhật dịch vụ", error });
+            return sendResponse(res, 500, null, "Lỗi khi cập nhật dịch vụ", error);
         }
     },
 
@@ -91,12 +79,12 @@ module.exports = {
             const { id } = req.params;
             const service = await Service.findByPk(id);
             if (!service) {
-                return res.status(404).json({ message: "Không tìm thấy dịch vụ với ID này" });
+                return sendResponse(res, 404, null, "Không tìm thấy dịch vụ với ID này");
             }
             await service.destroy();
-            return res.status(200).json({ message: "Dịch vụ đã được xóa thành công" });
+            return sendResponse(res, 200, null, "Dịch vụ đã được xóa thành công");
         } catch (error) {
-            return res.status(500).json({ message: "Lỗi khi xóa dịch vụ", error });
+            return sendResponse(res, 500, null, "Lỗi khi xóa dịch vụ", error);
         }
     },
 };

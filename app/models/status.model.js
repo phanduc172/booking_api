@@ -5,14 +5,6 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true,
         },
-        // table_id: {
-        //     type: DataTypes.INTEGER,
-        //     allowNull: false,
-        // },
-        // table_name: {
-        //     type: DataTypes.STRING,
-        //     allowNull: false,
-        // },
         status: {
             type: DataTypes.INTEGER,
             allowNull: false,

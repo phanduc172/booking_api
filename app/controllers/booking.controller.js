@@ -9,21 +9,17 @@ const { sendResponse } = require("../public/common");
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
-
     getAll: async (req, res) => {
         try {
             const { search } = req.query;
-
             const whereClause = {};
 
             if (search) {
-                whereClause[Op.or] = [
-                    { '$customer.name$': { [Op.like]: `%${search}%` } }
-                ];
+                whereClause[Op.or] = [{ '$customer.name$': { [Op.like]: `%${search}%` } }];
             }
 
             const bookings = await Booking.findAll({
-                where: search ? whereClause : {},
+                where: whereClause,
                 include: [
                     {
                         model: Room,
@@ -52,19 +48,10 @@ module.exports = {
                     }
                 ],
             });
-            return sendResponse(
-                res,
-                200,
-                bookings,
-                "Lấy danh sách đặt phòng thành công"
-            );
+
+            return sendResponse(res, 200, bookings, "Lấy danh sách đặt phòng thành công");
         } catch (error) {
-            return sendResponse(
-                res,
-                500,
-                error,
-                "Lỗi khi lấy danh sách đặt phòng"
-            );
+            return sendResponse(res, 500, null, "Lỗi khi lấy danh sách đặt phòng");
         }
     },
 
@@ -72,15 +59,14 @@ module.exports = {
         try {
             const { room_id, customer_id, amount_night, check_in, check_out, discount } = req.body;
 
-            const room = await Room.findByPk(room_id, {
-                attributes: ["price_per_night"]
-            });
+            const room = await Room.findByPk(room_id, { attributes: ["price_per_night"] });
             if (!room) {
-                return res.status(404).json({ message: "Phòng không tồn tại" });
+                return sendResponse(res, 404, null, "Phòng không tồn tại");
             }
+
             const total_price = (room.price_per_night * amount_night) - (room.price_per_night * amount_night * (discount / 100));
-            const waitConfirm = 2
-            const status = waitConfirm
+            const status = 2; // Chờ xác nhận
+
             const newBooking = await Booking.create({
                 id: uuidv4(),
                 room_id,
@@ -90,62 +76,65 @@ module.exports = {
                 check_out,
                 status,
                 total_price,
-                discount: 0
+                discount: discount || 0
             });
 
-            return sendResponse(
-                res,
-                201,
-                newBooking,
-                "Đặt phòng thành công"
-            );
+            return sendResponse(res, 201, newBooking, "Đặt phòng thành công");
         } catch (error) {
-            return res.status(500).json({ message: "Lỗi khi tạo booking", error });
+            return sendResponse(res, 500, null, "Lỗi khi tạo booking");
         }
     },
 
     findOne: async (req, res) => {
-        const id = req.params.id;
-        const booking = await Booking.findByPk(id, {
-            include: [
-                { model: Customer, as: "customer" },
-                { model: Room, as: "room" },
-                {
-                    model: Status,
-                    as: "roomStatus",
-                    attributes: ["id", "status", "status_name"]
-                }
-            ],
-        });
+        try {
+            const { id } = req.params;
+            const booking = await Booking.findByPk(id, {
+                include: [
+                    { model: Customer, as: "customer" },
+                    { model: Room, as: "room" },
+                    {
+                        model: Status,
+                        as: "roomStatus",
+                        attributes: ["id", "status", "status_name"]
+                    }
+                ],
+            });
 
-        if (booking) {
+            if (!booking) {
+                return sendResponse(res, 404, null, "Không tìm thấy đặt phòng");
+            }
             return sendResponse(res, 200, booking, "Lấy thông tin đặt phòng thành công");
-        } else {
-            return res.status(404).json({ message: "Booking not found" });
+        } catch (error) {
+            return sendResponse(res, 500, null, "Lỗi khi lấy thông tin đặt phòng");
         }
     },
 
     update: async (req, res) => {
-        const id = req.params.id;
-        const [updated] = await Booking.update(req.body, {
-            where: { booking_id: id }
-        });
+        try {
+            const { id } = req.params;
+            const [updated] = await Booking.update(req.body, { where: { id } });
 
-        if (updated) {
-            return res.json({ message: "Booking updated successfully" });
-        } else {
-            return res.status(400).json({ message: "Failed to update booking" });
+            if (!updated) {
+                return sendResponse(res, 400, null, "Cập nhật đặt phòng thất bại");
+            }
+            const updatedBooking = await Booking.findByPk(id);
+            return sendResponse(res, 200, updatedBooking, "Cập nhật đặt phòng thành công");
+        } catch (error) {
+            return sendResponse(res, 500, null, "Lỗi khi cập nhật đặt phòng");
         }
     },
 
     delete: async (req, res) => {
-        const id = req.params.id;
-        const deleted = await Booking.destroy({ where: { booking_id: id } });
+        try {
+            const { id } = req.params;
+            const deleted = await Booking.destroy({ where: { id } });
 
-        if (deleted) {
-            return res.json({ message: "Booking deleted successfully" });
-        } else {
-            return res.status(400).json({ message: "Failed to delete booking" });
+            if (!deleted) {
+                return sendResponse(res, 400, null, "Xóa đặt phòng thất bại");
+            }
+            return sendResponse(res, 200, null, "Xóa đặt phòng thành công");
+        } catch (error) {
+            return sendResponse(res, 500, null, "Lỗi khi xóa đặt phòng");
         }
     }
 };
