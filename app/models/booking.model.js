@@ -55,8 +55,9 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
         status: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.ENUM("Pending", "Confirmed", "Canceled"),
             allowNull: false,
+            defaultValue: "Pending",
         },
     }, {
         tableName: 'booking',

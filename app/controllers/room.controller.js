@@ -212,28 +212,26 @@ module.exports = {
         try {
             let { check_in, check_out, amount_adult, amount_child } = req.query;
 
-            if (!check_in || !check_out) {
-                return res.status(400).json({ message: "Vui lòng cung cấp ngày check-in và check-out" });
-            }
+            let whereClause = { status: 1 }; // Mặc định lấy phòng có trạng thái "Còn trống"
 
-            // Chuyển đổi định dạng từ DD-MM-YYYY sang YYYY-MM-DD HH:mm:ss
-            check_in = moment(check_in, "DD-MM-YYYY").format("YYYY-MM-DD 14:00:00"); // Check-in mặc định 14:00
-            check_out = moment(check_out, "DD-MM-YYYY").format("YYYY-MM-DD 12:00:00"); // Check-out mặc định 12:00
+            if (check_in && check_out) {
+                // Chuyển đổi định dạng từ DD-MM-YYYY sang YYYY-MM-DD HH:mm:ss
+                check_in = moment(check_in, "DD-MM-YYYY").format("YYYY-MM-DD 14:00:00");
+                check_out = moment(check_out, "DD-MM-YYYY").format("YYYY-MM-DD 12:00:00");
 
-            console.log(`Check-in: ${check_in}, Check-out: ${check_out}`);
+                console.log(`Check-in: ${check_in}, Check-out: ${check_out}`);
 
-            // Điều kiện lọc
-            const whereClause = {
-                id: {
+                // Thêm điều kiện kiểm tra phòng có bị đặt trước không
+                whereClause.id = {
                     [Op.notIn]: Sequelize.literal(`
                     (SELECT room_id FROM booking 
                     WHERE check_in < '${check_out}' 
                     AND check_out > '${check_in}')
                 `)
-                },
-                status: 1 // Chỉ lấy phòng có trạng thái "Còn trống"
-            };
+                };
+            }
 
+            // Nếu có thông tin số lượng người lớn & trẻ em thì lọc theo yêu cầu
             if (amount_adult) whereClause.amount_adult = { [Op.gte]: amount_adult };
             if (amount_child) whereClause.amount_child = { [Op.gte]: amount_child };
 
@@ -254,5 +252,6 @@ module.exports = {
             console.error("Lỗi khi lấy phòng khả dụng:", error);
             return sendResponse(res, 500, null, "Lỗi server");
         }
-    }
+    },
+
 }

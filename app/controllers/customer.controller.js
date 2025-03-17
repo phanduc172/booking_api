@@ -20,9 +20,13 @@ module.exports = {
             }
 
             const customers = await Customer.findAll({
-                where: search ? whereClause : {},
+                where: {
+                    ...(search ? whereClause : {}),
+                    role: "Customer",
+                },
+                attributes: { exclude: ["password"] },
             });
-
+        
             return sendResponse(
                 res,
                 200,
@@ -45,12 +49,13 @@ module.exports = {
             }
 
             const newCustomer = await Customer.create({
-                id: uuidv4(), // ID tự tạo bằng uuid
+                id: uuidv4(),
                 name,
                 phone,
                 email,
                 country,
                 passport,
+                role: "Customer",
             });
 
             return sendResponse(res, 201, newCustomer, "Thêm khách hàng thành công");

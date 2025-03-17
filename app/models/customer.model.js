@@ -24,6 +24,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        role: {
+            type: DataTypes.ENUM("Admin", "Customer"),
+            allowNull: false,
+            defaultValue: "Customer",
+        },
+        password: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "123456a@",
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,

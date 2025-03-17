@@ -7,6 +7,7 @@ const Status = db.status;
 const Op = db.Sequelize.Op;
 const { sendResponse } = require("../public/common");
 const { v4: uuidv4 } = require("uuid");
+const sendBookingEmail = require("../services/emailService");
 
 module.exports = {
     getAll: async (req, res) => {
@@ -57,15 +58,15 @@ module.exports = {
 
     create: async (req, res) => {
         try {
-            const { room_id, customer_id, amount_night, check_in, check_out, discount } = req.body;
+            const { room_id, customer_id, amount_night, check_in, check_out, discount, customer_email } = req.body;
 
-            const room = await Room.findByPk(room_id, { attributes: ["price_per_night"] });
+            const room = await Room.findByPk(room_id, { attributes: ["id", "name", "price_per_night"] });
             if (!room) {
                 return sendResponse(res, 404, null, "Phòng không tồn tại");
             }
 
             const total_price = (room.price_per_night * amount_night) - (room.price_per_night * amount_night * (discount / 100));
-            const status = 2; // Chờ xác nhận
+            const status = 'Pending'; // Chờ xác nhận
 
             const newBooking = await Booking.create({
                 id: uuidv4(),
@@ -76,14 +77,42 @@ module.exports = {
                 check_out,
                 status,
                 total_price,
-                discount: discount || 0
+                discount: discount || 0,
             });
 
-            return sendResponse(res, 201, newBooking, "Đặt phòng thành công");
+            // 🔍 Tìm thông tin khách hàng và phòng
+            const responseCustomer = await Customer.findByPk(newBooking.customer_id, {
+                attributes: ["id", "name", "email", "phone"]
+            });
+
+            const responseRoom = await Room.findByPk(newBooking.room_id, {
+                attributes: ["id", "name", "price_per_night","type_of_room_id"]
+            });
+            const responseRoomType = await RoomType.findByPk(responseRoom.type_of_room_id, {
+                attributes: ["id", "name","description"]
+            });
+
+            // 📨 Gửi email xác nhận đặt phòng
+            await sendBookingEmail(customer_email, {
+                booking: newBooking,
+                customer: responseCustomer,
+                room: responseRoom,
+                roomType: responseRoomType
+            });
+
+            return sendResponse(res, 201, {
+                booking: newBooking,
+                customer: responseCustomer,
+                room: responseRoom,
+                roomType: responseRoomType
+            }, "Đặt phòng thành công, email đã được gửi!");
+
         } catch (error) {
+            console.error("❌ Lỗi khi tạo booking:", error);
             return sendResponse(res, 500, null, "Lỗi khi tạo booking");
         }
     },
+
 
     findOne: async (req, res) => {
         try {
