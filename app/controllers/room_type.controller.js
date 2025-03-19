@@ -3,7 +3,6 @@ const RoomOfType = db.roomtype;
 const { sendResponse } = require("../public/common");
 
 module.exports = {
-    // Tạo mới một loại phòng
     create: async (req, res) => {
         try {
             const { id, name, status } = req.body;
@@ -14,8 +13,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi tạo loại phòng", error);
         }
     },
-
-    // Lấy danh sách tất cả loại phòng
     getAll: async (req, res) => {
         try {
             const roomtype = await RoomOfType.findAll();
@@ -24,8 +21,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy danh sách loại phòng", error);
         }
     },
-
-    // Lấy thông tin một loại phòng theo ID
     findOne: async (req, res) => {
         try {
             const { id } = req.params;
@@ -40,8 +35,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy thông tin loại phòng", error);
         }
     },
-
-    // Cập nhật thông tin loại phòng theo ID
     update: async (req, res) => {
         try {
             const { id } = req.params;
@@ -59,8 +52,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi cập nhật loại phòng", error);
         }
     },
-
-    // Xóa loại phòng theo ID
     delete: async (req, res) => {
         try {
             const { id } = req.params;

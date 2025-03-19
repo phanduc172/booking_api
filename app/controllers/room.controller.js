@@ -21,7 +21,6 @@ module.exports = {
             if (amount_child) whereClause.amount_child = { [Op.gte]: amount_child };
             if (status) whereClause.status = status;
             if (type) whereClause.type_of_room_id = type;
-
             const rooms = await Room.findAll({
                 include: [
                     {
@@ -43,13 +42,11 @@ module.exports = {
                 ],
                 where: whereClause
             });
-
             return sendResponse(res, 200, rooms, "Lấy danh sách phòng thành công");
         } catch (error) {
             return sendResponse(res, 500, null, "Lỗi khi lấy danh sách phòng");
         }
     },
-
     create: async (req, res) => {
         try {
             const { name, price_per_night, amount_adult, amount_child, status, type_of_room_id, facilities } = req.body;
@@ -57,8 +54,6 @@ module.exports = {
             if (!name || !price_per_night || !amount_adult || !amount_child || !status || !type_of_room_id) {
                 return sendResponse(res, 400, null, "Vui lòng cung cấp đầy đủ thông tin phòng");
             }
-
-            // Tạo phòng mới
             const newRoom = await Room.create({
                 id: uuidv4(),
                 name,
@@ -68,11 +63,9 @@ module.exports = {
                 status,
                 type_of_room_id,
             });
-
             if (facilities && facilities.length > 0) {
                 await newRoom.setFacilities(facilities);
             }
-
             const createdRoom = await Room.findByPk(newRoom.id, {
                 include: [
                     {
@@ -83,13 +76,11 @@ module.exports = {
                     }
                 ]
             });
-
             return sendResponse(res, 201, createdRoom, "Thêm phòng thành công");
         } catch (error) {
             return sendResponse(res, 500, null, "Lỗi khi tạo phòng");
         }
     },
-
     findOne: async (req, res) => {
         try {
             const { id } = req.params;
@@ -113,7 +104,6 @@ module.exports = {
                     },
                 ]
             });
-
             if (!room) {
                 return sendResponse(res, 404, null, "Không tìm thấy phòng với ID này");
             }
@@ -122,7 +112,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy thông tin phòng");
         }
     },
-
     update: async (req, res) => {
         try {
             const { id } = req.params;
@@ -138,11 +127,9 @@ module.exports = {
                     }
                 ]
             });
-
             if (!room) {
                 return sendResponse(res, 404, null, "Không tìm thấy phòng với ID này");
             }
-
             await room.update({
                 name,
                 price_per_night,
@@ -151,12 +138,10 @@ module.exports = {
                 status,
                 type_of_room_id,
             });
-
             if (facilities && Array.isArray(facilities)) {
                 await room.setFacilities([]);
                 await room.setFacilities(facilities);
             }
-
             const updatedRoom = await Room.findByPk(id, {
                 include: [
                     {
@@ -167,75 +152,57 @@ module.exports = {
                     }
                 ]
             });
-
             return sendResponse(res, 200, updatedRoom, "Phòng đã được cập nhật thành công");
         } catch (error) {
             return sendResponse(res, 500, null, "Lỗi khi cập nhật phòng");
         }
     },
-
     delete: async (req, res) => {
         try {
             const { id } = req.params;
             const room = await Room.findByPk(id);
-
             if (!room) {
                 return sendResponse(res, 404, null, "Không tìm thấy phòng với ID này");
             }
-
             await room.destroy();
             return sendResponse(res, 200, null, "Phòng đã được xóa thành công");
         } catch (error) {
             return sendResponse(res, 500, null, "Lỗi khi xóa phòng");
         }
     },
-
     updateStatus: async (req, res) => {
         try {
             const { id } = req.params;
             const { status } = req.body;
-
             const room = await Room.findByPk(id);
             if (!room) {
                 return sendResponse(res, 404, null, "Không tìm thấy phòng với ID này");
             }
-
             await room.update({ status });
-
             return sendResponse(res, 200, room, "Trạng thái phòng đã được cập nhật thành công");
         } catch (error) {
             return sendResponse(res, 500, null, "Lỗi khi cập nhật trạng thái phòng");
         }
     },
-
     getAvailableRooms: async (req, res) => {
         try {
             let { check_in, check_out, amount_adult, amount_child } = req.query;
-
-            let whereClause = { status: 1 }; // Mặc định lấy phòng có trạng thái "Còn trống"
-
+            let whereClause = { status: 1 };
             if (check_in && check_out) {
-                // Chuyển đổi định dạng từ DD-MM-YYYY sang YYYY-MM-DD HH:mm:ss
                 check_in = moment(check_in, "DD-MM-YYYY").format("YYYY-MM-DD 14:00:00");
                 check_out = moment(check_out, "DD-MM-YYYY").format("YYYY-MM-DD 12:00:00");
-
                 console.log(`Check-in: ${check_in}, Check-out: ${check_out}`);
-
-                // Thêm điều kiện kiểm tra phòng có bị đặt trước không
                 whereClause.id = {
                     [Op.notIn]: Sequelize.literal(`
                     (SELECT room_id FROM booking 
                     WHERE check_in < '${check_out}' 
-                    AND check_out > '${check_in}')
+                    AND check_out > '${check_in}'
+                    AND status IN ('pending', 'confirmed'))
                 `)
                 };
             }
-
-            // Nếu có thông tin số lượng người lớn & trẻ em thì lọc theo yêu cầu
             if (amount_adult) whereClause.amount_adult = { [Op.gte]: amount_adult };
             if (amount_child) whereClause.amount_child = { [Op.gte]: amount_child };
-
-            // Truy vấn danh sách phòng khả dụng
             const availableRooms = await Room.findAll({
                 where: whereClause,
                 include: [
@@ -246,7 +213,6 @@ module.exports = {
                     }
                 ]
             });
-
             return sendResponse(res, 200, availableRooms, "Danh sách phòng khả dụng");
         } catch (error) {
             console.error("Lỗi khi lấy phòng khả dụng:", error);

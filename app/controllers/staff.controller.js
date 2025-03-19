@@ -5,7 +5,6 @@ const Op = db.Sequelize.Op;
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
-    // Tạo nhân viên mới
     create: async (req, res) => {
         try {
             const { name, position, email, phone, shift, salary, hire_date, status } = req.body;
@@ -25,8 +24,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi tạo nhân viên", error);
         }
     },
-
-    // Lấy danh sách nhân viên
     getAll: async (req, res) => {
         try {
             const { search } = req.query;
@@ -43,8 +40,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy danh sách nhân viên", error);
         }
     },
-
-    // Lấy thông tin nhân viên theo ID
     findOne: async (req, res) => {
         try {
             const { id } = req.params;
@@ -57,8 +52,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy thông tin nhân viên", error);
         }
     },
-
-    // Cập nhật thông tin nhân viên theo ID
     update: async (req, res) => {
         try {
             const { id } = req.params;
@@ -74,8 +67,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi cập nhật nhân viên", error);
         }
     },
-
-    // Xóa nhân viên theo ID
     delete: async (req, res) => {
         try {
             const { id } = req.params;

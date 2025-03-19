@@ -5,7 +5,6 @@ const Op = db.Sequelize.Op;
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
-    // Tạo dịch vụ mới
     create: async (req, res) => {
         try {
             const { name, icon } = req.body;
@@ -19,8 +18,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi tạo dịch vụ", error);
         }
     },
-
-    // Lấy danh sách tất cả dịch vụ
     getAll: async (req, res) => {
         try {
             const { search } = req.query;
@@ -41,8 +38,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy danh sách dịch vụ", error);
         }
     },
-
-    // Lấy thông tin dịch vụ theo ID
     findOne: async (req, res) => {
         try {
             const { id } = req.params;
@@ -55,8 +50,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy thông tin dịch vụ", error);
         }
     },
-
-    // Cập nhật thông tin dịch vụ theo ID
     update: async (req, res) => {
         try {
             const { id } = req.params;
@@ -72,8 +65,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi cập nhật dịch vụ", error);
         }
     },
-
-    // Xóa dịch vụ theo ID
     delete: async (req, res) => {
         try {
             const { id } = req.params;

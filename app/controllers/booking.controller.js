@@ -13,7 +13,9 @@ module.exports = {
     getAll: async (req, res) => {
         try {
             const { search } = req.query;
-            const whereClause = {};
+            const whereClause = {
+                status: { [Op.not]: "Completed" },
+            };
 
             if (search) {
                 whereClause[Op.or] = [{ '$customer.name$': { [Op.like]: `%${search}%` } }];
@@ -57,17 +59,18 @@ module.exports = {
     },
 
     create: async (req, res) => {
+        const transaction = await db.sequelize.transaction();
         try {
             const { room_id, customer_id, amount_night, check_in, check_out, discount, customer_email } = req.body;
-
-            const room = await Room.findByPk(room_id, { attributes: ["id", "name", "price_per_night"] });
+            const room = await Room.findByPk(room_id, {
+                attributes: ["id", "name", "price_per_night"],
+                transaction
+            });
             if (!room) {
                 return sendResponse(res, 404, null, "Phòng không tồn tại");
             }
-
             const total_price = (room.price_per_night * amount_night) - (room.price_per_night * amount_night * (discount / 100));
-            const status = 'Pending'; // Chờ xác nhận
-
+            const status = 'Pending';
             const newBooking = await Booking.create({
                 id: uuidv4(),
                 room_id,
@@ -78,41 +81,39 @@ module.exports = {
                 status,
                 total_price,
                 discount: discount || 0,
-            });
-
-            // 🔍 Tìm thông tin khách hàng và phòng
+            }, { transaction });
+            await room.update({ status: 2 }, { transaction });
             const responseCustomer = await Customer.findByPk(newBooking.customer_id, {
-                attributes: ["id", "name", "email", "phone"]
+                attributes: ["id", "name", "email", "phone"],
+                transaction
             });
-
             const responseRoom = await Room.findByPk(newBooking.room_id, {
-                attributes: ["id", "name", "price_per_night","type_of_room_id"]
+                attributes: ["id", "name", "price_per_night", "type_of_room_id"],
+                transaction
             });
             const responseRoomType = await RoomType.findByPk(responseRoom.type_of_room_id, {
-                attributes: ["id", "name","description"]
+                attributes: ["id", "name", "description"],
+                transaction
             });
-
-            // 📨 Gửi email xác nhận đặt phòng
             await sendBookingEmail(customer_email, {
                 booking: newBooking,
                 customer: responseCustomer,
                 room: responseRoom,
                 roomType: responseRoomType
             });
-
+            await transaction.commit();
             return sendResponse(res, 201, {
                 booking: newBooking,
                 customer: responseCustomer,
                 room: responseRoom,
                 roomType: responseRoomType
             }, "Đặt phòng thành công, email đã được gửi!");
-
         } catch (error) {
+            await transaction.rollback();
             console.error("❌ Lỗi khi tạo booking:", error);
             return sendResponse(res, 500, null, "Lỗi khi tạo booking");
         }
     },
-
 
     findOne: async (req, res) => {
         try {
@@ -128,7 +129,6 @@ module.exports = {
                     }
                 ],
             });
-
             if (!booking) {
                 return sendResponse(res, 404, null, "Không tìm thấy đặt phòng");
             }
@@ -142,7 +142,6 @@ module.exports = {
         try {
             const { id } = req.params;
             const [updated] = await Booking.update(req.body, { where: { id } });
-
             if (!updated) {
                 return sendResponse(res, 400, null, "Cập nhật đặt phòng thất bại");
             }
@@ -152,7 +151,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi cập nhật đặt phòng");
         }
     },
-
     delete: async (req, res) => {
         try {
             const { id } = req.params;
@@ -165,5 +163,23 @@ module.exports = {
         } catch (error) {
             return sendResponse(res, 500, null, "Lỗi khi xóa đặt phòng");
         }
-    }
+    },
+    updateStatus: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            if (!status) {
+                return sendResponse(res, 400, null, "Trạng thái không hợp lệ");
+            }
+            const [updated] = await Booking.update({ status }, { where: { id } });
+            if (!updated) {
+                return sendResponse(res, 400, null, "Cập nhật trạng thái thất bại");
+            }
+            const updatedBooking = await Booking.findByPk(id);
+            return sendResponse(res, 200, updatedBooking, "Cập nhật trạng thái thành công");
+        } catch (error) {
+            return sendResponse(res, 500, null, "Lỗi khi cập nhật trạng thái");
+        }
+    },
+
 };

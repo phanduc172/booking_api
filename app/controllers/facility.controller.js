@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require("uuid");
 const Op = db.Sequelize.Op;
 
 module.exports = {
-    // 🟢 Lấy danh sách tất cả tiện ích
     getAll: async (req, res) => {
         try {
             const { search } = req.query;
@@ -24,8 +23,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy danh sách tiện ích", error);
         }
     },
-
-    // 🟢 Tìm một tiện ích theo ID
     findOne: async (req, res) => {
         try {
             const { id } = req.params;
@@ -40,8 +37,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi tìm tiện ích", error);
         }
     },
-
-    // 🟢 Thêm tiện ích mới
     create: async (req, res) => {
         try {
             const { name, icon, description } = req.body;
@@ -54,7 +49,7 @@ module.exports = {
                 id: uuidv4(),
                 name,
                 icon,
-                description: description || "" // Tránh null
+                description: description || ""
             });
 
             return sendResponse(res, 201, newFacility, "Thêm tiện ích thành công");
@@ -62,8 +57,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi tạo tiện ích", error);
         }
     },
-
-    // 🟢 Cập nhật thông tin tiện ích
     update: async (req, res) => {
         try {
             const { id } = req.params;
@@ -84,19 +77,14 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi cập nhật tiện ích", error);
         }
     },
-
-    // 🟢 Xóa tiện ích
     delete: async (req, res) => {
         try {
             const { id } = req.params;
-
             const facility = await Facility.findByPk(id);
             if (!facility) {
                 return sendResponse(res, 404, null, "Tiện ích không tồn tại");
             }
-
             await Facility.destroy({ where: { id } });
-
             return sendResponse(res, 200, null, "Xóa tiện ích thành công");
         } catch (error) {
             return sendResponse(res, 500, null, "Lỗi khi xóa tiện ích", error);

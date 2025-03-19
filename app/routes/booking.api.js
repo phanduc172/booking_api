@@ -13,5 +13,7 @@ module.exports = app => {
 
     router.delete("/:id", booking.delete);
 
+    router.put("/:id/status", booking.updateStatus);
+
     app.use('/api/booking', router);
 };

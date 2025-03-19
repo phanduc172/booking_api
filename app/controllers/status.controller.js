@@ -4,7 +4,6 @@ const Status = db.status;
 const Op = db.Sequelize.Op;
 
 module.exports = {
-    // Tạo trạng thái mới
     create: async (req, res) => {
         try {
             const { status, status_name, is_delete } = req.body;
@@ -15,8 +14,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi tạo trạng thái", error);
         }
     },
-
-    // Lấy danh sách trạng thái
     getAll: async (req, res) => {
         try {
             const statuses = await Status.findAll();
@@ -25,8 +22,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy danh sách trạng thái", error);
         }
     },
-
-    // Lấy thông tin trạng thái theo ID
     findOne: async (req, res) => {
         try {
             const { id } = req.params;
@@ -40,8 +35,6 @@ module.exports = {
             return sendResponse(res, 500, null, "Lỗi khi lấy thông tin trạng thái", error);
         }
     },
-
-    // Cập nhật trạng thái theo ID
     update: async (req, res) => {
         try {
             const { id } = req.params;
@@ -51,15 +44,12 @@ module.exports = {
             if (!existingStatus) {
                 return sendResponse(res, 404, null, "Không tìm thấy trạng thái với ID này");
             }
-
             await existingStatus.update({ status, status_name, is_delete });
             return sendResponse(res, 200, existingStatus, "Trạng thái đã được cập nhật thành công");
         } catch (error) {
             return sendResponse(res, 500, null, "Lỗi khi cập nhật trạng thái", error);
         }
     },
-
-    // Xóa trạng thái theo ID
     delete: async (req, res) => {
         try {
             const { id } = req.params;
@@ -68,7 +58,6 @@ module.exports = {
             if (!existingStatus) {
                 return sendResponse(res, 404, null, "Không tìm thấy trạng thái với ID này");
             }
-
             await existingStatus.destroy();
             return sendResponse(res, 200, null, "Trạng thái đã được xóa thành công");
         } catch (error) {

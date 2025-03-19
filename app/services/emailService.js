@@ -26,7 +26,7 @@ const sendBookingEmail = async (toEmail, bookingDetails) => {
                     <p><strong>Check-in Date:</strong> ${new Date(bookingDetails.booking.check_in).toLocaleDateString()}</p>
                     <p><strong>Check-out Date:</strong> ${new Date(bookingDetails.booking.check_out).toLocaleDateString()}</p>
                     <p><strong>Number of Nights:</strong> ${bookingDetails.booking.amount_night}</p>
-                    <p><strong>Total Price:</strong> <span class="text-danger fw-bold">${bookingDetails.booking.total_price} $</span></p>
+                    <p><strong>Total Price:</strong> <span class="text-danger fw-bold">${bookingDetails.booking.total_price}$</span></p>
                     <p><strong>Discount:</strong> ${bookingDetails.booking.discount}%</p>
                 </div>
 

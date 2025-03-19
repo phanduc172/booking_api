@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        image: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         price_per_night: {
             type: DataTypes.FLOAT,
             allowNull: false,
