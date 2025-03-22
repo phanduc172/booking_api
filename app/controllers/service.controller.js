@@ -7,11 +7,11 @@ const { v4: uuidv4 } = require("uuid");
 module.exports = {
     create: async (req, res) => {
         try {
-            const { name, icon } = req.body;
+            const { name, image } = req.body;
             const service = await Service.create({
                 id: uuidv4(),
                 name,
-                icon
+                image
             });
             return sendResponse(res, 201, service, "Dịch vụ đã được tạo thành công");
         } catch (error) {
@@ -53,12 +53,12 @@ module.exports = {
     update: async (req, res) => {
         try {
             const { id } = req.params;
-            const { name, icon } = req.body;
+            const { name, image } = req.body;
             const service = await Service.findByPk(id);
             if (!service) {
                 return sendResponse(res, 404, null, "Không tìm thấy dịch vụ với ID này");
             }
-            await service.update({ name, icon });
+            await service.update({ name, image });
 
             return sendResponse(res, 200, service, "Dịch vụ đã được cập nhật thành công");
         } catch (error) {

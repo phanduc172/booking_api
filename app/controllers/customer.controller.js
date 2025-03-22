@@ -1,5 +1,6 @@
 const db = require("../models");
 const Customer = db.customer;
+const Booking = db.booking;
 const Op = db.Sequelize.Op;
 const { sendResponse } = require("../public/common");
 const { v4: uuidv4 } = require("uuid");
@@ -98,14 +99,23 @@ module.exports = {
     delete: async (req, res) => {
         try {
             const { id } = req.params;
+
+            // Kiểm tra khách hàng có tồn tại không
             const customer = await Customer.findByPk(id);
             if (!customer) {
                 return sendResponse(res, 404, null, "Khách hàng không tồn tại");
             }
+
+            // Xóa tất cả các booking liên quan trước
+            await Booking.destroy({ where: { customer_id: id } });
+
+            // Sau đó xóa khách hàng
             await Customer.destroy({ where: { id } });
+
             return sendResponse(res, 200, null, "Xóa khách hàng thành công");
         } catch (error) {
+            console.log("🚀 ~ delete: ~ error:", error);
             return sendResponse(res, 500, null, "Lỗi khi xóa khách hàng", error);
         }
-    },
+    }
 };

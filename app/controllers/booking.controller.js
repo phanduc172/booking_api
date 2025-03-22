@@ -14,8 +14,9 @@ module.exports = {
         try {
             const { search } = req.query;
             const whereClause = {
-                status: { [Op.not]: "Completed" },
+                status: { [Op.not]: ["Completed", "Canceled"] },
             };
+
 
             if (search) {
                 whereClause[Op.or] = [{ '$customer.name$': { [Op.like]: `%${search}%` } }];
